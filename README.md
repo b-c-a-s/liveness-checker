@@ -1,19 +1,56 @@
 # Liveness Checker
 
-A privacy-focused tool for checking that a user is real using their webcome and local facial recognition. All processing happens on the user's device - no data is ever sent to any servers.
+A privacy-focused tool for checking that a user is real using their webcam and local facial recognition. All processing happens on the user's device - no data is ever sent to any servers.
 
-## Live Demo
+> This is a fork of [universal-verify/liveness-checker](https://github.com/universal-verify/liveness-checker). See [Changes from the original](#changes-from-the-original) for what is different.
 
-Try the liveness checker directly: [https://universal-verify.github.io/liveness-checker/](https://universal-verify.github.io/liveness-checker/)
+## Changes from the original
 
-## Integration Examples
+### Blink detection
 
-See how to integrate the liveness checker into your website: [https://universal-verify.github.io/liveness-checker/examples](https://universal-verify.github.io/liveness-checker/examples)
+- New **blink step** after the head-turn steps (look left → look right → look straight → blink).
+- Eye openness is measured from the **pixels of the eye region** (`scripts/eyes.js`) instead of only the landmark Eye Aspect Ratio. The 68-point landmarks barely follow the eyelid (~12% EAR drop with the eye fully closed), while the pixel signal drops ~40% on a real blink. The signal is normalized by a skin patch below the eye, so it works across lighting conditions and skin tones.
+- Robust blink detector (`scripts/blink.js`, `scripts/blinkSensor.js`):
+  - baseline is the 75th percentile of recent frames, noise is estimated with MAD;
+  - **both** eyes must close (a reflection in one eye does not count);
+  - hysteresis so one oscillation is not counted as two blinks;
+  - frames with too much face/camera motion are ignored (motion blur looks like a closed eye);
+  - eyes "closed" for too long (smiling, tilted head) do not count as a blink.
+- Configurable number of required blinks and a blink timeout.
+
+### Configuration and debugging
+
+- All detection parameters live in `scripts/config.js` (blink sensitivity, head-turn tolerances, detector score/input size, frame interval).
+- New **settings page** (`/settings.html`) to tune those parameters. Values are saved in the browser's `localStorage` and merged over the defaults.
+- Optional **debug panel** (`scripts/debugPanel.js`) that shows the live eye signal, baseline, threshold, motion and FPS to help calibration.
+
+### UI
+
+- Step list showing progress through each stage (face detected, left, right, straight, blink).
+- Head-turn and "look straight" checks use the configurable tolerances instead of hard-coded values.
+
+### Code structure
+
+- Detection logic split into modules: `face.js`, `eyes.js`, `blink.js`, `blinkSensor.js`, `config.js`, `debugPanel.js`, `settings.js`.
+
+### Build and tooling
+
+- Rollup was replaced by a custom esbuild-based build (`tools/build.mjs`):
+  - bundles and tree-shakes the JS, with `face-api.js` imported from npm;
+  - inlines per-page Tailwind CSS (the prebuilt `styles/main.css` was removed);
+  - minifies HTML, converts images to AVIF, preloads the models;
+  - writes pre-compressed `.br` / `.gz` files;
+  - `npm start` serves `dist/` with rebuild on save.
+- `tailwind.config.js` renamed to `tailwind.config.cjs` (the package is ESM).
+- Build tools moved to `devDependencies`; the published package only ships `build/`.
+- Unit tests for blink detection (`tests/blink.test.js`) run with `npm test` (Node's built-in test runner).
 
 ## Installation
 
+Install this fork directly from GitHub:
+
 ```bash
-npm install liveness-checker
+npm install github:b-c-a-s/liveness-checker
 ```
 
 ## Usage
@@ -62,12 +99,11 @@ Opens the liveness checker in a new tab and returns a Promise that resolves on s
 npm install
 npm start        # builds dist/ and serves it at http://localhost:8001, rebuilding on save
 npm run build    # production build only (dist/ + build/ library)
+npm test         # runs the blink detection tests
 ```
 
 The source pages import `face-api.js` from npm, so they must be served from `dist/` (not opened directly).
-The build (`tools/build.mjs`) bundles and tree-shakes the JS with esbuild, inlines per-page Tailwind CSS,
-minifies HTML, converts images to AVIF, preloads the models and writes pre-compressed `.br`/`.gz` files.
-Blink and head-turn parameters can be tuned at `/settings.html`.
+Integration examples are at `/examples.html` and blink and head-turn parameters can be tuned at `/settings.html`.
 
 ## Privacy
 
@@ -78,16 +114,12 @@ The liveness checker processes all data locally on the user's device:
 - If directed from another website, only the liveness result is shared
 - All processing happens in the user's browser
 
-## Legal
-
-This liveness checker provides a basic level of evidence that a user is physically present and real through facial analysis. For use cases requiring higher confidence, we recommend using a comprehensive identity verification solution like [Universal Verify](https://universalverify.com).
-
-The liveness checker is provided "as is" without any warranties, express or implied. Users are responsible for ensuring compliance with applicable laws and regulations regarding identity verification in their jurisdiction.
-
 ## License
 
 MPL-2.0
 
 ## Credits
+
+Based on [liveness-checker](https://github.com/universal-verify/liveness-checker) by Universal Verify.
 
 This project uses [face-api.js](https://github.com/justadudewhohacks/face-api.js) for facial detection and liveness checking. All processing is done locally on the user's device.
