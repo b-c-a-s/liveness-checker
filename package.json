@@ -19,18 +19,20 @@
     "url": "git+https://github.com/universal-verify/liveness-checker.git"
   },
   "scripts": {
-    "start": "http-server -c-1 -p 8001",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rollup -c --bundleConfigAsCjs",
-    "build:css": "tailwindcss -i ./styles/input.css -o ./styles/main.css --minify",
-    "watch:css": "tailwindcss -i ./styles/input.css -o ./styles/main.css --watch"
-  },
-  "dependencies": {
-    "@rollup/plugin-terser": "^0.4.4",
-    "http-server": "^14.1.1",
-    "rollup": "^4.41.0"
+    "start": "node tools/build.mjs --serve",
+    "build": "node tools/build.mjs",
+    "test": "node --test tests/"
   },
   "devDependencies": {
+    "esbuild": "^0.28.2",
+    "face-api.js": "0.22.2",
+    "html-minifier-terser": "^7.2.0",
+    "http-server": "^14.1.1",
+    "postcss": "^8.5.32",
+    "sharp": "^0.35.5",
     "tailwindcss": "^3.4.0"
-  }
+  },
+  "files": [
+    "build"
+  ]
 }

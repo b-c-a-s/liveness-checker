@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:,">
+    <title>Configurações - Liveness Checker</title>
+    <link rel="stylesheet" href="./styles/main.css">
+    <script src="./scripts/settings.js" type="module" defer></script>
+</head>
+<body class="font-sans bg-gradient-to-r from-blue-50 to-indigo-50">
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-900">Configurações</h1>
+            <a href="./index.html" class="text-blue-600 hover:text-blue-700">Voltar ao teste</a>
+        </div>
+        <p class="text-gray-600 mb-6">
+            O fluxo exige giro de cabeça (esquerda, direita, frente) e depois piscada. Os valores ficam salvos neste navegador (localStorage).
+        </p>
+        <form id="settings-form" class="bg-white rounded-lg shadow-lg p-8 space-y-8"></form>
+        <p id="status" class="text-green-600 mt-4 h-6"></p>
+    </div>
+</body>
+</html>

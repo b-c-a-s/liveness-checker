@@ -56,6 +56,19 @@ Opens the liveness checker in a new tab and returns a Promise that resolves on s
 - `WEBCAM_ERROR`: There was an issue accessing the user's webcam (e.g., permission denied or device not found).
 - `INTERNAL_ERROR`: An unexpected error occurred during the liveness check process.
 
+## Development
+
+```bash
+npm install
+npm start        # builds dist/ and serves it at http://localhost:8001, rebuilding on save
+npm run build    # production build only (dist/ + build/ library)
+```
+
+The source pages import `face-api.js` from npm, so they must be served from `dist/` (not opened directly).
+The build (`tools/build.mjs`) bundles and tree-shakes the JS with esbuild, inlines per-page Tailwind CSS,
+minifies HTML, converts images to AVIF, preloads the models and writes pre-compressed `.br`/`.gz` files.
+Blink and head-turn parameters can be tuned at `/settings.html`.
+
 ## Privacy
 
 The liveness checker processes all data locally on the user's device:
